@@ -31,7 +31,7 @@ def create_app(test_config=None):
     Create an endpoint to handle GET requests
     for all available categories.
     """
-    @app.route('/categoriess', methods=['GET'])
+    @app.route('/categories', methods=['GET'])
     def get_categories():
         categories = Category.query.all()
         formatted_categories = [category.format() for category in categories]
@@ -79,7 +79,7 @@ def create_app(test_config=None):
                 "success": True,
                 "questions": current_questions,
                 "current_category": category,
-                "number_of_question": len(Question.query.all()),
+                "number_of_questions": len(Question.query.all()),
             }
         )
     """
@@ -159,7 +159,25 @@ def create_app(test_config=None):
     only question that include that string within their question.
     Try using the word "title" to start.
     """
+    @app.route("/questions/<int:question_id>", methods=["POST"])
+    def search_question(question_id):
 
+        body = request.get_json()
+
+        try:
+            question = Question.query.filter(Question.id == question_id).one_or_none()
+            if question is None:
+                abort(404)
+
+            if "title" in body:
+                question.id = int(body.get("title"))
+
+            question.update()
+
+            return jsonify({"success": True, "id": question.id})
+
+        except:
+            abort(400)
     """
     @TODO:
     Create a GET endpoint to get questions based on category.
@@ -168,7 +186,21 @@ def create_app(test_config=None):
     categories in the left column will cause only questions of that
     category to be shown.
     """
+    @app.route("/categories")
+    def retrieve_categories():
+        selection = Category.query.order_by(Category.id).all()
+        current_categories = paginate_questions(request, selection)
 
+        if len(current_categories) == 0:
+            abort(404)
+
+        return jsonify(
+            {
+                "success": True,
+                "categories": current_categories,
+                "number_of_questions": len(Category.query.all()),
+            }
+        )
     """
     @TODO:
     Create a POST endpoint to get questions to play the quiz.
@@ -180,12 +212,42 @@ def create_app(test_config=None):
     one question at a time is displayed, the user is allowed to answer
     and shown whether they were correct or not.
     """
+    @app.route("/questions/<int:question_category>", methods=["POST"])
+    def search_random_question(question_category):
 
+        body = request.get_json()
+        random = random.randint(1, len(Category))
+        try:
+            question = Question.query.filter(question_category).one_or_none()
+
+            if random in body:
+                question.id = int(body.get(question))
+
+            question.update()
+
+            return jsonify({"success": True, "id": question.id})
+
+        except:
+            abort(400)
     """
     @TODO:
     Create error handlers for all expected errors
     including 404 and 422.
     """
+    @app.errorhandler(404)
+    def not_found(error):
+        return jsonify({
+            "success": False, 
+            "error": 404,
+            "message": "Question or category Not found"
+            }), 404
 
+    @app.errorhandler(422)
+    def not_processed(error):
+        return jsonify({
+            "success": False, 
+            "error": 422,
+            "message": "unprocessible"
+            }), 422       
     return app
 
