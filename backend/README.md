@@ -73,7 +73,14 @@ You will need to provide detailed documentation of your API endpoints including 
 
 ### Documentation Example
 
-`GET '/api/v1.0/categories'`
+`GET 'http://127.0.0.1:5500/categories'`
+`GET 'http://127.0.0.1:5500/questions'`
+`DELETE 'http://127.0.0.1:5500/questions/1'`
+`POST 'http://127.0.0.1:5500/questions'`
+`POST 'http://127.0.0.1:5500/questions/1'`
+`POST 'http://127.0.0.1:5500/category?questions=1'`
+
+
 
 - Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
 - Request Arguments: None
