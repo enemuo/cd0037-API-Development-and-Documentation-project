@@ -132,7 +132,8 @@ def create_app(test_config=None):
         new_difficulty = body.get("difficulty", None)
 
         try:
-            question = Question(question=new_question, category=new_category, difficulty=new_difficulty,answer=new_answer)
+            question = Question(question=new_question, category=new_category, 
+                                difficulty=new_difficulty,answer=new_answer)
             question.insert()
 
             selection = Question.query.order_by(Question.id).all()
